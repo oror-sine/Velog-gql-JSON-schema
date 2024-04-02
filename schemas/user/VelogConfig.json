@@ -1,0 +1,1 @@
+{"operationName": "VelogConfig", "query": "query VelogConfig($username: String) {\n    velog_config(username: $username) {\n      title\n      logo_image\n    }\n  }\n", "operationType": "query", "variablesSchema": {"type": "object", "properties": {"username": {"type": "String"}}}}

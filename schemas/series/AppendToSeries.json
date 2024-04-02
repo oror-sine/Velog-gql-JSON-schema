@@ -1,0 +1,1 @@
+{"operationName": "AppendToSeries", "query": "mutation AppendToSeries($series_id: ID!, $post_id: ID!) {\n    appendToSeries(series_id: $series_id, post_id: $post_id)\n  }\n", "operationType": "mutation", "variablesSchema": {"type": "object", "properties": {"series_id": {"type": "ID!,"}, "post_id": {"type": "ID"}}, "required": ["post_id"]}}

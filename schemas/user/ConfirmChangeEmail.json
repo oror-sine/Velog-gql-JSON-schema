@@ -1,0 +1,1 @@
+{"operationName": "ConfirmChangeEmail", "query": "mutation ConfirmChangeEmail($code: String!) {\n    confirmChangeEmail(code: $code)\n  }\n", "operationType": "mutation", "variablesSchema": {"type": "object", "properties": {"code": {"type": "String"}}, "required": ["code"]}}

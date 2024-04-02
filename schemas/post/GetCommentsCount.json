@@ -1,0 +1,1 @@
+{"operationName": "GetCommentsCount", "query": "query GetCommentsCount($id: ID!) {\n    post(id: $id) {\n      id\n      comments_count\n    }\n  }\n", "operationType": "query", "variablesSchema": {"type": "object", "properties": {"id": {"type": "ID"}}, "required": ["id"]}}

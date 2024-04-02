@@ -1,0 +1,1 @@
+{"operationName": "EmailExists", "query": "query EmailExists($email: String!) {\n    emailExists(email: $email)\n  }\n", "operationType": "query", "variablesSchema": {"type": "object", "properties": {"email": {"type": "String"}}, "required": ["email"]}}

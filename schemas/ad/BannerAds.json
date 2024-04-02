@@ -1,0 +1,1 @@
+{"operationName": "BannerAds", "query": "query BannerAds($writerUsername: String!) {\n    bannerAds(writer_username: $writerUsername) {\n      id\n      title\n      body\n      url\n      image\n    }\n  }\n", "operationType": "query", "variablesSchema": {"type": "object", "properties": {"writerUsername": {"type": "String"}}, "required": ["writerUsername"]}}

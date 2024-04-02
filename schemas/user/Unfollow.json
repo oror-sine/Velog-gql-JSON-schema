@@ -1,0 +1,1 @@
+{"operationName": "Unfollow", "query": "mutation Unfollow($following_user_id: ID!) {\n    unfollow(following_user_id: $following_user_id) {\n      id\n      is_followed\n    }\n  }\n", "operationType": "mutation", "variablesSchema": {"type": "object", "properties": {"following_user_id": {"type": "ID"}}, "required": ["following_user_id"]}}

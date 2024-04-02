@@ -1,0 +1,1 @@
+{"operationName": "Tag", "query": "query Tag($name: String!) {\n    tag(name: $name) {\n      id\n      name\n      description\n      posts_count\n      thumbnail\n    }\n  }\n", "operationType": "query", "variablesSchema": {"type": "object", "properties": {"name": {"type": "String"}}, "required": ["name"]}}
