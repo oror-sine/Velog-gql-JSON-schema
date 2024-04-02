@@ -1,0 +1,31 @@
+name: Test
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout oror-sine/Velog-gql-JSON-schema
+        uses: actions/checkout@v4
+
+      - name: Checkout velopert/velog-client
+        uses: actions/checkout@v4
+        with:
+          repository: velopert/velog-client
+          path: velog-client
+          sparse-checkout: |
+            src/lib/api
+            src/lib/graphql
+       
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      - name: Install requirements.txt
+        run:  pip install -r requirements.txt
+
+      - name: Parse gql & Save as Json
+        run: |
+          python main.py
