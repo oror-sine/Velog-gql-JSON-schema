@@ -123,7 +123,7 @@ def gql_dictionary_to_json(gql:dict, dir_name='schemas'):
                 gql_types[type_name][operation_type].append(operation_name)
                 dict_to_json(operation, path=f'{dir_name}/{type_name}/{operation_name}.json')
     
-    dict_to_json(gql_types, f'{dir_name}/types.json')
+    dict_to_json(get_only_exists(gql_types), f'{dir_name}/types.json')
 
 def main():
     dir_name = 'velog-client/src/lib/graphql'
