@@ -1,1 +1,1 @@
-{"operationName": "RemoveComment", "query": "mutation RemoveComment($id: ID!) {\n    removeComment(id: $id)\n  }\n", "operationType": "mutation", "variablesSchema": {"type": "object", "properties": {"id": {"type": "ID"}}, "required": ["id"]}}
+{"operationName": "RemoveComment", "operationType": "mutation", "query": "mutation RemoveComment($id: ID!) {\n    removeComment(id: $id)\n  }\n", "variablesSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}}

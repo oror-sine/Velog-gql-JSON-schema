@@ -3,99 +3,137 @@ import re
 import json
 from jsonschema import Draft7Validator
 from collections import defaultdict
-from functools import partial
-import gql_schema
+from operation_schema import operation_schema
 
 
-type_name_pattern = r'(query|mutation) (.*)'
-variables_pattern = r'([^\)]*)'
-gql_pattern = re.compile(f'({type_name_pattern}\\s?\\({variables_pattern}\\)[^`]*)')
+variables_ptrn = r'([^\)]*)'
+operation_type_ptrn = r'(query|mutation)'
+operation_name_ptrn = r'(.*)'
+query_ptrn = re.compile(f'({operation_type_ptrn} {operation_name_ptrn}\\s?\\({variables_ptrn}\\)[^`]*)')
+
+operation_validator = Draft7Validator(operation_schema)
 
 
-gql_operation_validator = Draft7Validator(gql_schema.gql_schema['operationSchema'])
-gql_type_validator = Draft7Validator(gql_schema.gql_schema['gqlTypeSchema'])
 
+def to_json_type(variable_type:str):
+    variable_type = variable_type.lower()
+    expected_variable_types = {
+        'ID', 
+        'JSON', 
+        '[ID]', 
+        '[String]', 
+        'Boolean', 
+        'ReadingListOption', 
+        'Int', 
+        'String'
+    }
+    expected_variable_types = set(map(lambda x: x.lower(), expected_variable_types))
+
+    if variable_type not in expected_variable_types:
+        raise Exception(f'Unexpected Variable Type: {variable_type}')
+
+
+
+    if variable_type[0] == '[':
+        return {'type': 'arr', 'items': to_json_type(variable_type[1:-1])}
+    
+    if variable_type in ('id', 'string'):
+        return {'type': 'string'}
+
+    if variable_type in ('int',):
+        return {'type': 'integer'}
+
+    if variable_type in ('boolean',):
+        return {'type':'boolean'}
+
+    return {'type':'object'}
 
 def get_file_names(dir_name, extension=''):
-    return (
-        dir_content
-        for dir_content
-        in os.listdir(dir_name) 
-        if dir_content.endswith(extension)
-    )
+    return (name for name in os.listdir(dir_name) if name.endswith(extension))
 
-def get_file_content(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
+
+def content_from(path):
+    with open(path, 'r', encoding='utf-8') as f:
         return ''.join(f.readlines())
+
 
 def get_only_exists(dictionary):
     return {k:v for k, v in dictionary.items() if v}
     
 
-def gen_json_file(path, json_object):
-    get_only_exists(json_object)
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(json_object, f)
+def dict_to_json(dictionary, path):
+    dirname = os.path.dirname(path)
 
-def gen_gql_operation(info, dir_name=None):
-    gql, operation_type, name, variables = info
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(dictionary, f)
+
+
+def operation_from_matches(match):
+    query, operation_type, operation_name, variables = match
 
     variables = variables.replace('\n', ' ').strip().lstrip('$').split('$')
-    variables_schema = {
-        "type": "object",
-        "properties": {},
-        "required": []
-    }
+    variables_schema = {'type': 'object', 'properties': {}, 'required': []}
 
     for var in variables:
-        _name, _type = map(lambda x: x.strip(), var.split(':'))
+        variable_name, variable_type = map(lambda x: x.strip().strip(','), var.split(':'))
 
-        if _type[-1] == '!':
-            _type = _type[:-1]
-            variables_schema['required'].append(_name)
+        if variable_type[-1] == '!':
+            variable_type = to_json_type(variable_type[:-1])
+            variables_schema['required'].append(variable_name)
+        else:
+            variable_type = to_json_type(variable_type)
 
-        variables_schema['properties'][_name] = {'type':_type}
+        variables_schema['properties'][variable_name] = variable_type
 
-
-    gql_operation = get_only_exists({
-        'operationName': name,
-        'query': gql,
+    operation = get_only_exists({
+        'operationName': operation_name,
         'operationType': operation_type,
+        'query': query,
         'variablesSchema': get_only_exists(variables_schema),
     })
 
-    gql_operation_validator.validate(gql_operation)
-
-    if dir_name is not None:
-        gen_json_file(f'{dir_name}/{name}.json', gql_operation)
-
-    return gql_operation
-
-def gen_gql_type(content, dir_name=None):
-    gql_type = defaultdict(list)
-
-    matches = gql_pattern.findall(content)
-
-    if matches and not os.path.exists(gql_type_path):
-        os.makedirs(gql_type_path)
-
-    gen_operation = partial(gen_gql_operation, dir_name = dir_name)
-    gql_operations = map(gen_operation, matches)
+    operation_validator.validate(operation)
     
-    for gql_operation in gql_operations:
-        operation_type = gql_operation['operationType']
-        gql_type[operation_type].append(gql_operation)
-
-    gql_type = get_only_exists(gql_type)
-
-    # gql_type_validator.validate(gql_type)
-
-    return gql_type
+    return operation
 
 
-dir_name = 'velog-client/src/lib/graphql'
-for file_name in get_file_names(dir_name, 'ts'):
-    file_path = '/'.join((dir_name, file_name))
-    content = get_file_content(file_path)
-    gql_type_path = f'{gql_schema.dir_name}/{file_name[:-3]}'
-    gql_type = gen_gql_type(content, dir_name=gql_type_path)
+def gql_type_from_ts_file(path):
+    content = content_from(path)
+    matches = query_ptrn.findall(content)
+    operations = map(operation_from_matches, matches)
+
+    gql_type = defaultdict(dict)    
+    for operation in operations:
+        operation_name = operation['operationName']
+        operation_type = operation['operationType']
+        gql_type[operation_type][operation_name] = operation
+
+    return get_only_exists(gql_type)
+
+def gql_dictionary_to_json(gql:dict, dir_name='schemas'):
+    gql_types = {}
+
+    for type_name, gql_type in gql.items():
+        gql_types[type_name] = defaultdict(list)
+        for operation_type, operations in gql_type.items():
+            for operation_name, operation in operations.items():
+                gql_types[type_name][operation_type].append(operation_name)
+                dict_to_json(operation, path=f'{dir_name}/{type_name}/{operation_name}.json')
+    
+    dict_to_json(gql_types, f'{dir_name}/types.json')
+
+def main():
+    dir_name = 'velog-client/src/lib/graphql'
+    gql = {}
+    for file_name in get_file_names(dir_name, 'ts'):
+        type_name= file_name[:-3]
+        gql[type_name] = gql_type_from_ts_file(path=f'{dir_name}/{file_name}')
+    
+    gql_dictionary_to_json(gql)
+
+
+if __name__ == '__main__':
+    main()

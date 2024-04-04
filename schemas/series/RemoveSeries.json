@@ -1,1 +1,1 @@
-{"operationName": "RemoveSeries", "query": "mutation RemoveSeries($id: ID!) {\n    removeSeries(id: $id)\n  }\n", "operationType": "mutation", "variablesSchema": {"type": "object", "properties": {"id": {"type": "ID"}}, "required": ["id"]}}
+{"operationName": "RemoveSeries", "operationType": "mutation", "query": "mutation RemoveSeries($id: ID!) {\n    removeSeries(id: $id)\n  }\n", "variablesSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}}

@@ -1,1 +1,1 @@
-{"operationName": "LikePost", "query": "mutation LikePost($id: ID!) {\n    likePost(id: $id) {\n      id\n      likes\n      liked\n    }\n  }\n", "operationType": "mutation", "variablesSchema": {"type": "object", "properties": {"id": {"type": "ID"}}, "required": ["id"]}}
+{"operationName": "LikePost", "operationType": "mutation", "query": "mutation LikePost($id: ID!) {\n    likePost(id: $id) {\n      id\n      likes\n      liked\n    }\n  }\n", "variablesSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}}

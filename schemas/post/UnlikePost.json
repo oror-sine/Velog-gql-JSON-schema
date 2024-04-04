@@ -1,1 +1,1 @@
-{"operationName": "UnlikePost", "query": "mutation UnlikePost($id: ID!) {\n    unlikePost(id: $id) {\n      id\n      likes\n      liked\n    }\n  }\n", "operationType": "mutation", "variablesSchema": {"type": "object", "properties": {"id": {"type": "ID"}}, "required": ["id"]}}
+{"operationName": "UnlikePost", "operationType": "mutation", "query": "mutation UnlikePost($id: ID!) {\n    unlikePost(id: $id) {\n      id\n      likes\n      liked\n    }\n  }\n", "variablesSchema": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}}
