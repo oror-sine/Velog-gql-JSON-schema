@@ -10,8 +10,8 @@ rm -rf velog-client
 
 git add schemas
 if [[ $(git diff --staged --name-only) ]]; then
-    git config "user.name oror-sine"
-    git config "user.email oror-sine@users.noreply.github.com"
+    git config user.name "oror-sine"
+    git config user.email "oror-sine@users.noreply.github.com"
     git commit -m "update velog-gql-json-schema"
     git push
 fi
