@@ -1,0 +1,1 @@
+{"operationName": "JobPositions", "operationType": "query", "query": "query JobPositions($category: String) {\n    jobPositions(category: $category) {\n      id\n      name\n      companyName\n      companyLogo\n      thumbnail\n      url\n    }\n  }\n", "variablesSchema": {"type": "object", "properties": {"category": {"type": "string"}}}}
